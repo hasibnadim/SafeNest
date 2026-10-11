@@ -18,6 +18,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { toast } from "sonner";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Button } from "./ui/button";
+import { Onboarding } from "./Onbording";
 
 const PWAInstallButton = () => {
   const [deferredPrompt, setDeferredPrompt] = useState<Event | null>(null);
@@ -133,6 +134,13 @@ const UserBullet = () => {
         </Link>
       </Button>
     );
+  }
+  if (!user.phone) {
+    return (
+      <div className="fixed top-0 left-0 w-full h-screen bg-white dark:bg-black flex items-center justify-center z-50">
+        <Onboarding phone />
+      </div>
+    )
   }
   return (
     <Popover>

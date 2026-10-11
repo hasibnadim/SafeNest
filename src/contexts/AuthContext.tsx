@@ -16,6 +16,7 @@ interface AuthContextType {
   // Actions
   loginWithGoogle: (redirectValue?: string) => void;
   logout: () => Promise<void>;
+  updatePhone: (phone: string) => Promise<void>;
   clearError: () => void;
 }
 
@@ -102,6 +103,23 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     router.refresh();
   }, [router]);
 
+  const updatePhone = useCallback(async (phone: string) => {
+    const response = await fetch("/auth/api", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ phone }),
+    });
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.error || "Failed to update phone number.");
+    }
+
+    setUser((currentUser) =>
+      currentUser ? { ...currentUser, phone } : currentUser
+    );
+  }, []);
+
   const value: AuthContextType = {
     user,
     status,
@@ -109,6 +127,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     error,
     loginWithGoogle,
     logout,
+    updatePhone,
     clearError,
   };
 
