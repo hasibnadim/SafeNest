@@ -170,6 +170,7 @@ export default function CookieConsent() {
                                          <label className="relative inline-flex items-center cursor-pointer">
                        <input
                          type="checkbox"
+                         aria-label="Analytics cookies"
                          checked={localPreferences.analytics}
                          onChange={(e) => setLocalPreferences(prev => ({ ...prev, analytics: e.target.checked }))}
                          className="sr-only peer"
@@ -191,6 +192,7 @@ export default function CookieConsent() {
                                          <label className="relative inline-flex items-center cursor-pointer">
                        <input
                          type="checkbox"
+                         aria-label="Marketing cookies"
                          checked={localPreferences.marketing}
                          onChange={(e) => setLocalPreferences(prev => ({ ...prev, marketing: e.target.checked }))}
                          className="sr-only peer"

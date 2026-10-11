@@ -1,5 +1,5 @@
 import type { NextConfig } from "next";
-// import { withSerwist } from "@serwist/turbopack";
+import { withSerwist } from "@serwist/turbopack";
 import path from "path";
 const nextConfig: NextConfig = {
   turbopack:{
@@ -14,4 +14,4 @@ const nextConfig: NextConfig = {
    unoptimized: true,
   },
 };
-export default nextConfig// withSerwist(nextConfig)
+export default  withSerwist(nextConfig)

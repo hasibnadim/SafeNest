@@ -26,8 +26,8 @@
     "@tailwindcss/typography": "^0.5.20",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "esbuild-wasm": "^0.28.2",
     "jose": "^6.2.12",
-    "katex": "^0.18.9",
     "lucide-react": "^1.48.0",
     "mongodb": "^7.7.0",
     "next": "^16.3.6",
@@ -37,11 +37,6 @@
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "react-hook-form": "^7.89.0",
-    "react-markdown": "^10.1.0",
-    "rehype-katex": "^7.0.1",
-    "rehype-prism-plus": "^2.0.2",
-    "remark-gfm": "^4.0.1",
-    "remark-math": "^6.0.0",
     "server-only": "^0.0.1",
     "sharp": "^0.35.5",
     "sonner": "^2.0.8",
@@ -50,6 +45,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@eslint/js": "^9.39.5",
     "@serwist/turbopack": "^9.5.12",
     "@tailwindcss/postcss": "^4",
     "@types/crypto-js": "^4.2.2",
@@ -58,13 +54,19 @@
     "@types/react-dom": "^19.3.0",
     "esbuild": "^0.28.2",
     "eslint": "^9.39.5",
-    "eslint-config-next": "16.3.6",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.13.0",
     "serwist": "^9.5.12",
     "tailwindcss": "^4",
     "tw-animate-css": "^1.4.0",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.71.1"
   },
   "overrides": {
-    "browserslist": "^4.29.2"
+    "browserslist": "^4.29.2",
+    "dompurify": "^3.4.16",
+    "postcss-selector-parser": "^7.1.6"
   }
 }
