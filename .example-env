@@ -1,0 +1,19 @@
+# DATABASE 
+MONGODB_DB = ""
+MONGO_PASS =""
+MONGODB_URI = ""
+TEMP_DIR = "/tmp"
+
+# AUTH - Google OAuth
+# NEXT_PUBLIC_GOOGLE_OAUTH_CLIENT_ID is public by design; GOOGLE_CLIENT_SECRET is server-only.
+NEXT_PUBLIC_GOOGLE_OAUTH_CLIENT_ID = ""
+GOOGLE_CLIENT_SECRET = ""
+
+# Signs the httpOnly session JWT. Generate with: openssl rand -base64 48
+SESSION_SECRET = ""
+
+# The OAuth callback path registered in the Google Cloud console.
+# Google derives the full URI from the request origin, e.g. http://localhost:3000/auth/callback
+
+# PLATFORM WALLET
+PLATFORM_WALLET_SECRET_KEY = ""
