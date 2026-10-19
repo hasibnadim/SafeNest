@@ -481,13 +481,22 @@ export function PropertyForm({
 
   // Subscribing to the errors tree here is what tints the broken rows;
   // validation runs on submit, so this does not re-render while typing. RHF
-  // types array errors as a merged object/array hybrid, so narrow it once to a
-  // plain list of per-index errors.
-  const unitErrors = form.formState.errors.units as
-    | (object | undefined)[]
-    | undefined;
+  // types array errors as a merged object/array hybrid — but when a root-level
+  // array constraint fires (e.g. min(1)), errors.units is a plain object with
+  // { message, type }, NOT an array.  Always guard with Array.isArray.
+  const rawUnitErrors = form.formState.errors.units;
+  const unitErrors: (object | undefined)[] | undefined = Array.isArray(
+    rawUnitErrors,
+  )
+    ? (rawUnitErrors as (object | undefined)[])
+    : undefined;
+  /** Root-level array message, e.g. "At least one unit is required". */
+  const unitRootError: string | undefined =
+    !Array.isArray(rawUnitErrors) && rawUnitErrors
+      ? (rawUnitErrors as { message?: string }).message
+      : undefined;
   const errorUnitCount = useMemo(
-    () => unitErrors?.filter(Boolean).length ?? 0,
+    () => unitErrors?.filter((e): e is object => Boolean(e)).length ?? 0,
     [unitErrors],
   );
 
@@ -609,6 +618,12 @@ export function PropertyForm({
    * so its exact field messages are on screen instead of hidden in a table.
    */
   const onInvalid = () => {
+    // Root-level array error (e.g. "At least one unit is required").
+    if (unitRootError) {
+      setFormError(unitRootError);
+      return;
+    }
+    // Per-index unit errors — open the first broken unit in the editor.
     const firstBad = unitErrors?.findIndex((error) => Boolean(error)) ?? -1;
     if (firstBad >= 0) {
       setFormError("Some units need attention — the broken one is open below.");
