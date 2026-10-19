@@ -13,9 +13,9 @@ export const metadata: Metadata = {
 };
 
 export default async function Home() {
-  // Fetch up to 4 featured units for the home page
-  const filters = parsePropertyFilters({});
-  const featuredCards = await listPublicUnitCards(filters, 4);
+  // Fetch up to 8 featured units for the home page, newest/most-recently-updated first
+  const filters = parsePropertyFilters({ sort: "newest" });
+  const featuredCards = await listPublicUnitCards(filters, 8);
 
   return (
     <div className="min-h-screen">
@@ -78,7 +78,7 @@ export default async function Home() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {featuredCards.length > 0 ? (
               featuredCards.map((card) => (
                 <PropertyCard

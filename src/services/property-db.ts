@@ -152,7 +152,10 @@ function buildUnitMatch(filters: PropertyFilters): Document {
  * exchange-rate conversion.
  */
 const sortSpec: Record<SortKey, Document> = {
-  newest: { listedAt: -1, "units.lastUpdatedAt": -1 },
+  // `updatedAt` is a Date and changes on every save, so newly created *and*
+  // recently edited properties both surface first. `units.lastUpdatedAt` and
+  // `listedAt` are tiebreakers within the same second.
+  newest: { updatedAt: -1, "units.lastUpdatedAt": -1, listedAt: -1 },
   "price-asc": { "units.price": 1, "units.code": 1 },
   "price-desc": { "units.price": -1, "units.code": 1 },
 };

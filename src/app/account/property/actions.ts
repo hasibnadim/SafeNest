@@ -91,6 +91,8 @@ async function withAuth<T>(
  * which unit codes are affected.
  */
 function revalidatePropertyViews(id?: string) {
+  // Home page — must be listed so a new property appears without a rebuild.
+  revalidatePath("/");
   revalidatePath("/property");
   revalidatePath("/account/property");
   revalidatePath("/account/dashboard");
