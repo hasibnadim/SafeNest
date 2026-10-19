@@ -22,19 +22,27 @@ import {
  * control type impossible to satisfy.
  */
 
-/** A plain number in a text input, bounded and optionally integral. */
+/**
+ * A plain number in a text input, bounded and optionally integral. An
+ * `optional` field also accepts blank input, which `toPropertyInput` reads as
+ * 0 — so a unit with no kitchen can leave the field empty.
+ */
 function numberField(
   label: string,
-  options: { min: number; max: number; integer?: boolean },
+  options: { min: number; max: number; integer?: boolean; optional?: boolean },
 ) {
+  const pattern = options.integer ? /^\d+$/ : /^\d+(\.\d+)?$/;
   return z
     .string()
     .trim()
-    .regex(
-      options.integer ? /^\d+$/ : /^\d+(\.\d+)?$/,
+    .refine(
+      (value) =>
+        value === "" ? options.optional === true : pattern.test(value),
       `${label} must be a number`,
     )
     .refine((value) => {
+      // A blank value already passed the check above as an allowed empty.
+      if (value === "") return true;
       const parsed = Number(value);
       return parsed >= options.min && parsed <= options.max;
     }, `${label} must be between ${options.min} and ${options.max}`);
@@ -49,6 +57,13 @@ function listField(label: string, maxLength: number) {
 }
 
 const AMENITY_LIMIT = 16;
+
+/**
+ * How many units one property may carry. Hostels and boarding houses list a
+ * room per tenant, so the ceiling is generous; the form collapses each unit
+ * into a summary row to stay usable at the top of this range.
+ */
+export const MAX_UNITS = 100;
 
 /** Splits a newline-separated textarea into a trimmed, capped list. */
 function toList(value: string, limit: number): string[] {
@@ -65,7 +80,7 @@ const contactSchema = z.object({
   phone: z.string().trim().min(1, "Phone is required").max(40, "Phone is too long"),
 });
 
-const unitSchema = z.object({
+export const unitSchema = z.object({
   code: z
     .string()
     .trim()
@@ -74,7 +89,12 @@ const unitSchema = z.object({
   rooms: numberField("Rooms", { min: 1, max: 99, integer: true }),
   bedType: z.enum(["1:1", "1:2", "1:3", "mixed"] satisfies [BedType, ...BedType[]]),
   bathrooms: numberField("Bathrooms", { min: 0, max: 99, integer: true }),
-  kitchens: numberField("Kitchens", { min: 0, max: 99, integer: true }),
+  kitchens: numberField("Kitchens", {
+    min: 0,
+    max: 99,
+    integer: true,
+    optional: true,
+  }),
   price: numberField("Price", { min: 0, max: 1_000_000_000, integer: true }),
   period: z.enum(rentPeriods, { message: "Choose a rent period" }),
   amenities: listField("Amenities", 2000),
@@ -89,11 +109,7 @@ export const propertySchema = z
       .min(3, "Name must be at least 3 characters")
       .max(120, "Name must be at most 120 characters"),
     type: z.enum(propertyTypes, { message: "Choose a property type" }),
-    description: z
-      .string()
-      .trim()
-      .max(4000, "Description is too long")
-      .refine((value) => value !== "", "Describe the property"),
+    description: z.string().trim().max(4000, "Description is too long"),
     address: z.object({
       street: z.string().trim().min(1, "Street is required").max(160),
       area: z.string().trim().min(1, "Area is required").max(80),
@@ -108,7 +124,7 @@ export const propertySchema = z
     units: z
       .array(unitSchema)
       .min(1, "At least one unit is required")
-      .max(50, "Fifty units is the maximum"),
+      .max(MAX_UNITS, "One hundred units is the maximum"),
   })
   // Unit codes identify a unit inside its property, so two units cannot share
   // one: the public URL and the unit lookup both key off the code.

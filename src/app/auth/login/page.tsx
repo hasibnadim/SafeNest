@@ -1,54 +1,56 @@
 "use client";
 
-import React, { Suspense, useEffect } from 'react'
-import { Card, CardContent } from '@/components/ui/card';
-import { AlertCircle, ArrowRight, KeyRound, Lock, ShieldCheck } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
-import { Button } from '@/components/ui/button';
-import { useRouter, useSearchParams } from 'next/navigation';
-import Link from 'next/link';
+import { Suspense, useEffect } from "react";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { AlertCircle, ArrowRight, KeyRound, Lock, ShieldCheck } from "lucide-react";
+import { Playwrite_US_Modern } from "next/font/google";
 
-const stars = [
-  { top: '9%', left: '8%' },
-  { top: '16%', left: '21%' },
-  { top: '6%', left: '35%' },
-  { top: '22%', left: '48%' },
-  { top: '12%', left: '62%' },
-  { top: '25%', left: '74%' },
-  { top: '8%', left: '86%' },
-  { top: '34%', left: '14%' },
-  { top: '44%', left: '30%' },
-  { top: '38%', left: '57%' },
-  { top: '52%', left: '80%' },
-  { top: '60%', left: '6%' },
-  { top: '66%', left: '42%' },
-  { top: '58%', left: '94%' },
-];
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
 
-const embers = [
-  { bottom: '10%', left: '14%', delay: '0s' },
-  { bottom: '6%', left: '38%', delay: '2.1s' },
-  { bottom: '12%', left: '62%', delay: '3.6s' },
-  { bottom: '5%', left: '86%', delay: '1.4s' },
-];
+/**
+ * Sign-in page, re-skinned to the header's tone: white canvas, the Playwrite
+ * wordmark exactly as the header carries it, Airbnb-style bordered surfaces
+ * and pills, and the blue accent the brand is built on.
+ *
+ * It is a client component behind <Suspense> because it reads
+ * `useSearchParams` for the OAuth error and redirect, and it stays in step
+ * with the site theme — light values first, `dark:` variants for the night
+ * side — so nothing here is hardcoded to one mode.
+ */
+
+const playWrite = Playwrite_US_Modern({
+  weight: ["400"],
+});
 
 const assurances = [
   {
     icon: ShieldCheck,
-    title: 'Verified server-side',
-    detail: 'Your Google token is checked before any session is created.',
+    title: "Verified server-side",
+    detail: "Your Google token is checked before any session is created.",
   },
   {
     icon: Lock,
-    title: 'Sealed session',
-    detail: 'Stored in an http-only cookie that page scripts cannot read.',
+    title: "Sealed session",
+    detail: "Stored in an http-only cookie that page scripts cannot read.",
   },
   {
     icon: KeyRound,
-    title: 'No password to leak',
-    detail: 'We never see, store, or handle your credentials.',
+    title: "No password to leak",
+    detail: "We never see, store, or handle your credentials.",
   },
 ];
+
+/** The brand wordmark, identical to the one in the header. */
+const Wordmark = ({ className = "" }: { className?: string }) => (
+  <span
+    className={`${playWrite.className} font-bold text-lg bg-linear-to-r from-gray-800 to-blue-600 dark:from-gray-100 dark:to-blue-200 bg-clip-text text-transparent ${className}`}
+  >
+    Safe Nest
+  </span>
+);
 
 const GoogleMark = () => (
   <svg className="w-5 h-5 mr-3 shrink-0" viewBox="0 0 24 24" aria-hidden="true">
@@ -58,7 +60,7 @@ const GoogleMark = () => (
     />
     <path
       fill="#34A853"
-      d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+      d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.21 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
     />
     <path
       fill="#FBBC05"
@@ -66,7 +68,7 @@ const GoogleMark = () => (
     />
     <path
       fill="#EA4335"
-      d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+      d="M12 5.38c1.62 0 3.06.56 4.21 1.43l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
     />
   </svg>
 );
@@ -75,11 +77,11 @@ const LoginView = () => {
   const { loading, error, loginWithGoogle, user } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const oauthError = searchParams.get('error');
+  const oauthError = searchParams.get("error");
 
   useEffect(() => {
     if (user) {
-      const redirectTarget = searchParams.get('redirect') || '/';
+      const redirectTarget = searchParams.get("redirect") || "/";
       router.replace(redirectTarget);
     }
   }, [user, router, searchParams]);
@@ -87,182 +89,157 @@ const LoginView = () => {
   const message = oauthError || error;
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#04080f] text-slate-200 flex items-center justify-center p-4 sm:p-6">
-      {/* hearth glow rising from below */}
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_120%,rgba(251,191,36,0.30),transparent_58%)]" />
-      {/* calm night above */}
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_20%_-10%,rgba(15,42,58,0.95),transparent_62%)]" />
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_85%_15%,rgba(45,212,191,0.14),transparent_55%)]" />
-
-      {/* night sky */}
-      <div className="pointer-events-none absolute inset-0" aria-hidden="true">
-        {stars.map((star, i) => (
-          <span
-            key={i}
-            className="absolute rounded-full bg-white animate-twinkle"
-            style={{
-              top: star.top,
-              left: star.left,
-              width: 2,
-              height: 2,
-              animationDelay: `${(i % 7) * 0.6}s`,
-              boxShadow: '0 0 6px rgba(255,255,255,0.75)',
-            }}
-          />
-        ))}
-      </div>
-
-      {/* drifting mist */}
+    <div className="relative min-h-screen overflow-hidden bg-white text-slate-800 dark:bg-slate-900 dark:text-slate-200">
+      {/* blue wash from above — the brand accent, kept very light */}
       <div
-        className="pointer-events-none absolute -left-1/4 bottom-0 h-64 w-[150%] rounded-full bg-teal-500/10 blur-3xl animate-drift"
         aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 top-0 h-72 bg-[radial-gradient(ellipse_at_50%_-20%,rgba(37,99,235,0.08),transparent_65%)] dark:bg-[radial-gradient(ellipse_at_50%_-20%,rgba(37,99,235,0.18),transparent_65%)]"
       />
+      {/* one soft corner glow for depth */}
       <div
-        className="pointer-events-none absolute -right-1/4 top-1/4 h-56 w-[130%] rounded-full bg-white/[0.04] blur-3xl animate-drift"
-        style={{ animationDelay: '7s' }}
         aria-hidden="true"
+        className="pointer-events-none absolute -right-32 top-1/4 h-72 w-72 rounded-full bg-gradient-to-br from-blue-100 to-sky-100 blur-3xl opacity-70 dark:from-blue-950/60 dark:to-sky-950/60"
       />
 
-      <div className="relative w-full max-w-5xl grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
-        {/* Brand panel */}
-        <aside className="hidden lg:flex flex-col items-start">
-          <div className="relative mb-7" aria-hidden="true">
-            <div className="absolute -inset-6 bg-amber-400/20 blur-2xl rounded-full animate-glow-breathe" />
-            <div className="relative flex h-16 w-16 items-center justify-center rounded-full border border-amber-200/30 bg-gradient-to-b from-amber-400/20 to-transparent shadow-[inset_0_0_30px_rgba(251,191,36,0.25)]">
-              <ShieldCheck className="h-7 w-7 text-amber-100" />
-            </div>
-          </div>
-
-          <p className="text-xs uppercase tracking-[0.35em] text-teal-300/70">safe nest</p>
-          <h1 className="mt-3 text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-100 via-teal-100 to-sky-100">
-            Come on in
-          </h1>
-          <p className="mt-4 max-w-sm text-slate-400 text-sm leading-6">
-            Everything you keep in Safe Nest — your profile, your wallet, your
-            preferences — sits behind one verified door. Here is what that door
-            is made of.
-          </p>
-
-          <ul className="mt-9 space-y-5">
-            {assurances.map((item) => (
-              <li key={item.title} className="flex gap-4">
-                <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/5">
-                  <item.icon className="h-4 w-4 text-teal-300" />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-slate-200">{item.title}</p>
-                  <p className="mt-0.5 text-xs leading-5 text-slate-500">{item.detail}</p>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </aside>
-
-        {/* Sign-in card */}
-        <main className="w-full max-w-md mx-auto">
-          <Card className="overflow-hidden border border-white/10 bg-white/[0.04] shadow-2xl backdrop-blur-xl">
-            <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-teal-300/60 to-transparent" />
-            <CardContent className="p-7 sm:p-8">
-              {/* Compact brand for small screens */}
-              <div className="mb-7 text-center lg:text-left">
-                <div className="mb-5 inline-flex lg:hidden">
-                  <div className="relative">
-                    <div className="absolute inset-0 bg-gradient-to-r from-teal-500 to-amber-500 rounded-full blur-lg opacity-40" />
-                    <div className="relative flex h-12 w-12 items-center justify-center rounded-full border border-amber-200/30 bg-white/5">
-                      <ShieldCheck className="h-6 w-6 text-amber-100" />
-                    </div>
-                  </div>
-                </div>
-                <p className="text-xs uppercase tracking-[0.3em] text-teal-300/70">safe nest</p>
-                <h2 className="mt-2 text-2xl font-bold text-slate-50">Sign in</h2>
-                <p className="mt-2 text-sm text-slate-400">
-                  Use your Google account to reach your nest.
-                </p>
-              </div>
-
-              {message && (
-                <div
-                  role="alert"
-                  className="mb-5 flex items-start gap-2.5 rounded-lg border border-red-400/30 bg-red-500/10 p-3"
-                >
-                  <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-red-300" />
-                  <span className="text-sm text-red-200">{message}</span>
-                </div>
-              )}
-
-              <Button
-                onClick={() => loginWithGoogle(searchParams.get('redirect') || '/')}
-                disabled={loading}
-                variant="outline"
-                size="lg"
-                aria-busy={loading}
-                className="h-12 w-full rounded-xl border-white/15 bg-white text-base font-medium transition-all duration-200 hover:bg-slate-100 hover:border-white/25 disabled:opacity-60"
-              >
-                <GoogleMark />
-                {loading ? 'Authenticating…' : 'Continue with Google'}
-              </Button>
-
-              <p className="mt-5 text-center text-xs leading-5 text-slate-500">
-                We verify your identity with Google. Safe Nest never sees or
-                stores your password.
-              </p>
-
-              {/* Mobile-only assurances */}
-              <ul className="mt-6 space-y-3 border-t border-white/10 pt-6 lg:hidden">
-                {assurances.map((item) => (
-                  <li key={item.title} className="flex items-center gap-3">
-                    <item.icon className="h-4 w-4 shrink-0 text-teal-300" />
-                    <span className="text-xs text-slate-400">{item.title}</span>
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
-
-          <div className="mt-6 flex flex-col items-center gap-2 text-center text-xs text-slate-500">
-            <div className="flex items-center gap-3">
-              <Link href="/info/privacy" className="transition-colors hover:text-teal-300">
-                Privacy Policy
-              </Link>
-              <span aria-hidden="true">·</span>
-              <Link href="/info/terms" className="transition-colors hover:text-teal-300">
-                Terms of Service
-              </Link>
-            </div>
+      <div className="relative mx-auto flex min-h-screen max-w-5xl flex-col justify-center px-4 py-12 sm:px-6">
+        <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
+          {/* Brand panel */}
+          <aside className="hidden lg:flex lg:flex-col lg:items-start">
             <Link
               href="/"
-              className="inline-flex items-center gap-1.5 text-slate-400 transition-colors hover:text-amber-200"
+              className="rounded-md outline-none focus-visible:ring-2 focus-visible:ring-teal-600"
             >
-              <ArrowRight className="h-3 w-3" />
-              Back to Safe Nest
+              <Wordmark className="text-base" />
             </Link>
-          </div>
-        </main>
-      </div>
 
-      {/* rising embers */}
-      <div className="pointer-events-none absolute inset-0" aria-hidden="true">
-        {embers.map((ember, i) => (
-          <span
-            key={i}
-            className="absolute h-1.5 w-1.5 rounded-full bg-amber-400/80 animate-rise"
-            style={{
-              bottom: ember.bottom,
-              left: ember.left,
-              animationDelay: ember.delay,
-              boxShadow: '0 0 8px rgba(251,191,36,0.9)',
-            }}
-          />
-        ))}
+            <h1 className="mt-7 text-4xl font-semibold tracking-tight text-slate-900 dark:text-slate-50">
+              Come on in
+            </h1>
+            <p className="mt-4 max-w-sm text-sm leading-6 text-slate-600 dark:text-slate-400">
+              Everything you keep in Safe Nest — your profile, your wallet, your
+              preferences — sits behind one verified door. Here is what that door
+              is made of.
+            </p>
+
+            <ul className="mt-8 space-y-4">
+              {assurances.map((item) => (
+                <li key={item.title} className="flex gap-4">
+                  <span className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800">
+                    <item.icon className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                  </span>
+                  <div>
+                    <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                      {item.title}
+                    </p>
+                    <p className="mt-0.5 text-xs leading-5 text-slate-500 dark:text-slate-400">
+                      {item.detail}
+                    </p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </aside>
+
+          {/* Sign-in card */}
+          <main className="w-full max-w-md mx-auto">
+            <Card className="overflow-hidden rounded-2xl border border-slate-200 bg-white py-0 gap-0 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+              <CardContent className="p-7 sm:p-8">
+                {/* Compact brand for small screens */}
+                <div className="mb-7 text-center lg:text-left">
+                  <div className="mb-5 flex justify-center lg:hidden">
+                    <Link
+                      href="/"
+                      className="rounded-md outline-none focus-visible:ring-2 focus-visible:ring-teal-600"
+                    >
+                      <Wordmark />
+                    </Link>
+                  </div>
+                  <h2 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-50">
+                    Sign in
+                  </h2>
+                  <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
+                    Use your Google account to reach your nest.
+                  </p>
+                </div>
+
+                {message && (
+                  <div
+                    role="alert"
+                    className="mb-5 flex items-start gap-2.5 rounded-xl border border-blue-200 bg-blue-50 p-3 dark:border-blue-900/60 dark:bg-blue-950/40"
+                  >
+                    <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-blue-600 dark:text-blue-400" />
+                    <span className="text-sm text-blue-700 dark:text-blue-300">
+                      {message}
+                    </span>
+                  </div>
+                )}
+
+                <Button
+                  onClick={() => loginWithGoogle(searchParams.get("redirect") || "/")}
+                  disabled={loading}
+                  variant="outline"
+                  size="lg"
+                  aria-busy={loading}
+                  className="h-12 w-full rounded-full border-slate-300 bg-white text-base font-medium text-slate-900 shadow-sm transition-all duration-200 hover:border-slate-400 hover:bg-white hover:text-slate-900 hover:shadow-md disabled:opacity-60 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 dark:hover:border-slate-500 dark:hover:bg-slate-700 dark:hover:text-slate-100"
+                >
+                  <GoogleMark />
+                  {loading ? "Authenticating…" : "Continue with Google"}
+                </Button>
+
+                <p className="mt-5 text-center text-xs leading-5 text-slate-500 dark:text-slate-400">
+                  We verify your identity with Google. Safe Nest never sees or
+                  stores your password.
+                </p>
+
+                {/* Mobile-only assurances */}
+                <ul className="mt-6 space-y-3 border-t border-slate-200 pt-6 dark:border-slate-700 lg:hidden">
+                  {assurances.map((item) => (
+                    <li key={item.title} className="flex items-center gap-3">
+                      <item.icon className="h-4 w-4 shrink-0 text-blue-600 dark:text-blue-400" />
+                      <span className="text-xs text-slate-600 dark:text-slate-400">
+                        {item.title}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+
+            <div className="mt-6 flex flex-col items-center gap-2 text-center text-xs text-slate-600 dark:text-slate-400">
+              <div className="flex items-center gap-3">
+                <Link
+                  href="/info/privacy"
+                  className="transition-colors hover:text-blue-600 dark:hover:text-blue-400"
+                >
+                  Privacy Policy
+                </Link>
+                <span aria-hidden="true">·</span>
+                <Link
+                  href="/info/terms"
+                  className="transition-colors hover:text-blue-600 dark:hover:text-blue-400"
+                >
+                  Terms of Service
+                </Link>
+              </div>
+              <Link
+                href="/"
+                className="inline-flex items-center gap-1.5 text-slate-500 transition-colors hover:text-blue-600 dark:text-slate-500 dark:hover:text-blue-400"
+              >
+                <ArrowRight className="h-3 w-3" />
+                Back to Safe Nest
+              </Link>
+            </div>
+          </main>
+        </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
 const Page = () => (
   <Suspense fallback={null}>
     <LoginView />
   </Suspense>
-)
+);
 
-export default Page
+export default Page;

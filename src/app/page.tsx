@@ -1,17 +1,10 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import {
-  ArrowRight,
-  LifeBuoy,
-  Lock,
-  ShieldCheck,
-  Sparkles,
-} from "lucide-react";
-
-import { Testimonial } from "@/components/Testimonial";
+import { ArrowUpRight, Building2 } from "lucide-react";
 import { PropertyCard } from "@/app/property/PropertyCard";
 import { listPublicUnitCards } from "@/services/property-db";
 import { parsePropertyFilters } from "@/services/property-filters";
+import SearchForm from "./SearchForm";
 
 export const metadata: Metadata = {
   title: "Safe Nest — A Protected Place Online",
@@ -19,63 +12,73 @@ export const metadata: Metadata = {
     "Safe Nest is a calm, secure home for your digital life — your account, wallet, and settings behind a single protected door.",
 };
 
-
-
-
 export default async function Home() {
   // Fetch up to 4 featured units for the home page
   const filters = parsePropertyFilters({});
   const featuredCards = await listPublicUnitCards(filters, 4);
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 dark:bg-[#04080f] dark:text-slate-200">
-      {/* ==== Small Hero Section ==== */}
-      <section className="relative overflow-hidden flex flex-col items-center justify-center px-4 py-3">
-        {/* Daylight: pale sky above, golden warmth below */}
-        <div className="pointer-events-none absolute inset-0 dark:hidden bg-[radial-gradient(ellipse_at_50%_-10%,rgba(204,251,241,0.95),transparent_62%)]" />
-        <div className="pointer-events-none absolute inset-0 dark:hidden bg-[radial-gradient(ellipse_at_50%_125%,rgba(253,224,138,0.65),transparent_58%)]" />
-        {/* Night: calm dark above, hearth glow from below */}
-        <div className="pointer-events-none absolute inset-0 hidden dark:block bg-[radial-gradient(ellipse_at_50%_130%,rgba(251,191,36,0.28),transparent_55%)]" />
-        <div className="pointer-events-none absolute inset-0 hidden dark:block bg-[radial-gradient(ellipse_at_50%_-10%,rgba(15,42,58,0.9),transparent_60%)]" />
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 hidden h-40 dark:block bg-[radial-gradient(ellipse_at_50%_100%,rgba(45,212,191,0.12),transparent_70%)]" />
-
-        <div className="relative text-center max-w-2xl mx-auto">
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl dark:text-slate-100">
-            SafeNest
-          </h1>
-          <p className="mt-1 text-base text-slate-600 dark:text-slate-300/90">
-            Your trusted partner to find your best home
-          </p>
-
-          <div className="mt-4">
-            <Link
-              href="/property"
-              className="group inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 px-5 py-2 text-sm font-semibold text-white shadow-[0_0_25px_rgba(245,158,11,0.3)] transition-all duration-300 hover:shadow-[0_0_40px_rgba(245,158,11,0.5)] hover:-translate-y-0.5 dark:from-amber-400 dark:to-amber-500 dark:text-slate-950 dark:shadow-[0_0_25px_rgba(251,191,36,0.35)] dark:hover:shadow-[0_0_40px_rgba(251,191,36,0.6)]"
+    <div className="min-h-screen">
+      {/* ==== Hero ==== */}
+      {/* A compact photo band in the header's rounded-card idiom; the photo
+          and shade reuse the existing `.hero-photo`/`.hero-shade` layers. */}
+      <section
+        id="top"
+        aria-labelledby="hero-title"
+        className="mx-auto mt-4 w-[calc(100%-2rem)] max-w-7xl"
+      >
+        <div className="relative h-[170px] overflow-hidden rounded-2xl bg-[#446e68] sm:h-[210px] lg:h-[240px]">
+          <div
+            className="hero-photo"
+            role="img"
+            aria-label="A modern hillside home with a pool and mountain views"
+          />
+          <div className="hero-shade" />
+          <div className="relative z-[1] flex h-full flex-col justify-center px-5 sm:px-10">
+            <span className="inline-flex items-center gap-2 text-[10px] font-bold tracking-[0.15em] text-[#dcf1e5] uppercase">
+              <span className="h-px w-4 bg-blue-500" />
+              Stays with a little more soul
+            </span>
+            <h1
+              id="hero-title"
+              className="mt-2.5 max-w-md text-2xl font-semibold tracking-tight text-white sm:text-3xl lg:text-4xl"
             >
-              Find your home
-              <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-            </Link>
+              Find a place to feel{" "}
+              <em className="font-normal italic text-teal-200">at home.</em>
+            </h1>
           </div>
+        </div>
+
+        {/* Search pill, overlapping the photo's bottom edge — shown at every width */}
+        <div className="relative z-10 mx-auto -mt-6 w-full max-w-2xl px-4 sm:px-0">
+          <SearchForm />
         </div>
       </section>
 
       {/* ==== Featured Property List Section ==== */}
-      <section
-        id="featured"
-        className="relative border-t border-slate-200 bg-white py-12 px-4 dark:border-white/5 dark:bg-[#060d16]"
-      >
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-teal-500/50 to-transparent dark:via-teal-400/50" />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-10">
-            <p className="text-xs uppercase tracking-[0.35em] text-teal-700/80 dark:text-teal-300/70">
-              Featured Properties
-            </p>
-            <h2 className="mt-3 text-2xl font-bold text-slate-900 sm:text-3xl dark:text-slate-100">
-              Properties You Might Like
-            </h2>
+      <section id="featured" className="bg-white py-8 dark:bg-slate-950">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mb-4 flex items-end justify-between gap-4">
+            <div>
+              <span className="text-[10px] font-bold tracking-[0.15em] text-slate-400 uppercase dark:text-slate-500">
+                A FEW VERY GOOD PLACES
+              </span>
+              <h2 className="mt-1.5 text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-50 sm:text-3xl">
+                Stay somewhere{" "}
+                <em className="italic text-blue-600 dark:text-blue-400">
+                  special.
+                </em>
+              </h2>
+            </div>
+            <Link
+              href="/property"
+              className="inline-flex shrink-0 items-center gap-1 text-sm font-medium text-blue-600 transition-colors hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+            >
+              Browse all nest <ArrowUpRight className="h-4 w-4" />
+            </Link>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {featuredCards.length > 0 ? (
               featuredCards.map((card) => (
                 <PropertyCard
@@ -85,10 +88,8 @@ export default async function Home() {
                 />
               ))
             ) : (
-              <div
-                className="col-span-3 sm:col-span-2 lg:col-span-3 rounded-lg border border-dashed border-slate-300 py-12 text-center dark:border-slate-700"
-              >
-                <span className="mx-auto h-5 w-5 text-slate-400" />
+              <div className="col-span-full rounded-2xl border border-dashed border-slate-300 bg-white py-10 text-center dark:border-slate-700 dark:bg-slate-900">
+                <Building2 className="mx-auto h-5 w-5 text-slate-400 dark:text-slate-500" />
                 <p className="mt-2.5 text-sm font-semibold text-slate-900 dark:text-slate-100">
                   No featured properties yet
                 </p>
@@ -100,9 +101,6 @@ export default async function Home() {
           </div>
         </div>
       </section>
-
-      {/* ==== Testimonial Section ==== */}
-      <Testimonial />
 
       {/* Footer is rendered by layout.tsx */}
     </div>

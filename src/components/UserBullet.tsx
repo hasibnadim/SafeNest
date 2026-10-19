@@ -1,13 +1,11 @@
 "use client";
-import { useState, useRef, useEffect, useSyncExternalStore } from "react";
+import { useState, useEffect, useSyncExternalStore } from "react";
 import {
-  Bell,
   Building2,
-  Download,
-  LayoutDashboard,
   Loader2,
   LogIn,
   LogOut,
+  Menu,
   Moon,
   Sun,
   UserIcon,
@@ -19,87 +17,45 @@ import { toast } from "sonner";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Button } from "./ui/button";
 import { Onboarding } from "./Onbording";
+import {
+  applyTheme,
+  readColorScheme,
+  serverColorScheme,
+  subscribeToColorScheme,
+  type ColorScheme,
+} from "@/lib/theme";
 
-const PWAInstallButton = () => {
-  const [deferredPrompt, setDeferredPrompt] = useState<Event | null>(null);
-  const handler = (e: Event) => {
-    e.preventDefault();
-    setDeferredPrompt(e);
-  };
+/**
+ * Account menu in the header's tone: a rounded-2xl white card that opens under
+ * the pill, with an identity header (avatar, name, email), grouped menu rows
+ * on soft hover backgrounds, and hairline dividers instead of bare `<hr>`s.
+ * Destructive sign-out gets its own red hover; everything else is blue.
+ */
 
-  useEffect(() => {
-    window.addEventListener("beforeinstallprompt", handler);
+/** Menu-row styling shared by the link items and the action buttons. */
+const rowClass =
+  "flex w-full cursor-pointer items-center gap-3 rounded-xl px-3 py-2 text-sm text-slate-700 transition-colors outline-none hover:bg-slate-50 hover:text-blue-600 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal-600 dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-blue-400 dark:focus-visible:ring-teal-500";
 
-    return () => {
-      window.removeEventListener("beforeinstallprompt", handler);
-    };
-  }, []);
+const logoutRowClass =
+  "flex w-full cursor-pointer items-center gap-3 rounded-xl px-3 py-2 text-sm text-slate-700 transition-colors outline-none hover:bg-red-50 hover:text-red-600 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal-600 dark:text-slate-200 dark:hover:bg-red-950/40 dark:hover:text-red-400 dark:focus-visible:ring-teal-500";
 
-  if (!deferredPrompt) return null;
+const iconClass = "h-4 w-4 shrink-0 text-slate-400 dark:text-slate-500";
 
-  return (
-    <Button
-      variant={"ghost"}
-      className="w-full cursor-pointer justify-start"
-      onClick={async () => {
-        (deferredPrompt as any).prompt();
-      }}
-    >
-      <Download /> Install as App
-    </Button>
-  );
-};
-
-type ColorScheme = "light" | "dark";
-
-// The stored/OS theme is an external store, so read it with useSyncExternalStore
-// instead of mirroring it into state inside an effect.
-function readColorScheme(): ColorScheme {
-  const storedTheme = window.localStorage.getItem("theme");
-  if (storedTheme) {
-    return storedTheme === "dark" ? "dark" : "light";
-  }
-  return window.matchMedia?.("(prefers-color-scheme: dark)").matches
-    ? "dark"
-    : "light";
-}
-
-function subscribeToColorScheme(onChange: () => void) {
-  window.addEventListener("storage", onChange);
-  return () => window.removeEventListener("storage", onChange);
-}
+/** Hairline divider matching the card's rounded padding. */
+const Divider = () => (
+  <div className="mx-2 border-t border-slate-100 dark:border-slate-800" />
+);
 
 const UserBullet = () => {
   const [open, setOpen] = useState(false);
   const { user, logout, loading } = useAuth();
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const systemColorScheme = useSyncExternalStore(
+  // The stored/OS theme is an external store, so read it with
+  // useSyncExternalStore instead of mirroring it into state inside an effect.
+  const colorScheme = useSyncExternalStore<ColorScheme>(
     subscribeToColorScheme,
     readColorScheme,
-    () => "light" as ColorScheme
+    serverColorScheme,
   );
-  // null means "follow the stored/OS theme"; a string means the user picked one.
-  const [themeOverride, setThemeOverride] = useState<ColorScheme | null>(null);
-  const colorScheme = themeOverride ?? systemColorScheme;
-  // Close dropdown on outside click
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
-        setOpen(false);
-      }
-    }
-    if (open) {
-      document.addEventListener("mousedown", handleClickOutside);
-    } else {
-      document.removeEventListener("mousedown", handleClickOutside);
-    }
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [open]);
   useEffect(() => {
     // Reflect the resolved theme onto the document. This is an external system,
     // so updating it from an effect is correct.
@@ -114,20 +70,23 @@ const UserBullet = () => {
     }
   };
   const handleDarkModeToggle = () => {
-    const next: ColorScheme = colorScheme === "dark" ? "light" : "dark";
-    document.documentElement.classList.toggle("dark", next === "dark");
-    localStorage.setItem("theme", next);
-    setThemeOverride(next);
+    // The shared helper persists, flips the document class, and raises the
+    // synthetic storage event that keeps the footer toggle in step.
+    applyTheme(colorScheme === "dark" ? "light" : "dark");
   };
   if (!user) {
     return (
-      <Button asChild variant={"ghost"}>
+      <Button
+        asChild
+        variant="ghost"
+        className="rounded-full border border-slate-300 px-3 font-medium hover:bg-white hover:shadow-md md:px-4 dark:border-slate-700 dark:hover:bg-slate-800"
+      >
         <Link href="/auth/login">
           <LogIn className="w-4 h-4" />
           {loading ? (
             <Loader2 className="w-4 h-4 animate-spin" />
           ) : (
-            <span className="hidden md:inline font-normal font-sans">
+            <span className="hidden sm:inline font-normal font-sans">
               Sign In
             </span>
           )}
@@ -143,18 +102,42 @@ const UserBullet = () => {
     )
   }
   return (
-    <Popover>
-      <PopoverTrigger className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-slate-900 dark:text-gray-200 bg-white/80 dark:bg-slate-900/80 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-all duration-200 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2 dark:focus-visible:ring-teal-500 dark:focus-visible:ring-offset-slate-900">
-        <div className="relative">
-          <Avatar className="w-7 h-7 rounded-full border border-slate-200 dark:border-slate-800 object-cover">
+    // Radix handles outside clicks and Escape, so the open state only has to
+    // close the menu when a link is chosen.
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger
+        aria-label="Account menu"
+        className="flex cursor-pointer items-center gap-2 rounded-full border border-slate-300 bg-white py-1 pr-1 pl-3 transition-all duration-200 outline-none hover:shadow-md focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2 dark:border-slate-700 dark:bg-slate-800 dark:focus-visible:ring-teal-500 dark:focus-visible:ring-offset-slate-900"
+      >
+        <Menu className="h-4 w-4 text-slate-600 dark:text-slate-300" />
+        <Avatar className="h-8 w-8 rounded-full border border-slate-200 object-cover dark:border-slate-700">
+          <AvatarImage src={user.photoURL} alt="avatar" />
+          <AvatarFallback>{user?.firstName?.charAt(0) || "U"}</AvatarFallback>
+        </Avatar>
+      </PopoverTrigger>
+      <PopoverContent
+        align="end"
+        sideOffset={8}
+        className="w-72 rounded-2xl border border-slate-200 bg-white p-0 shadow-lg dark:border-slate-700 dark:bg-slate-900"
+      >
+        {/* Identity header */}
+        <div className="flex items-center gap-3 border-b border-slate-100 px-4 py-3.5 dark:border-slate-800">
+          <Avatar className="h-10 w-10 shrink-0 rounded-full border border-slate-200 object-cover dark:border-slate-700">
             <AvatarImage src={user.photoURL} alt="avatar" />
             <AvatarFallback>{user?.firstName?.charAt(0) || "U"}</AvatarFallback>
           </Avatar>
-          <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-slate-900"></div>
+          <div className="min-w-0">
+            <p className="truncate text-sm font-semibold text-slate-900 dark:text-slate-50">
+              {user.firstName} {user.lastName}
+            </p>
+            <p className="truncate text-xs text-slate-500 dark:text-slate-400">
+              {user.email}
+            </p>
+          </div>
         </div>
-      </PopoverTrigger>
-      <PopoverContent>
-        <ul className="py-1">
+
+        {/* Account links */}
+        <ul className="space-y-0.5 p-2">
           {[
             {
               title: "Profile",
@@ -166,43 +149,51 @@ const UserBullet = () => {
               icon: Building2,
               link: "/account/property",
             },
-          ].map((item, index) => (
-            <li key={index}>
+          ].map((item) => (
+            <li key={item.link}>
               <Link
                 href={item.link}
-                className="flex items-center gap-2 px-4 py-2 text-sm text-slate-900 dark:text-gray-200 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-blue-600 dark:hover:text-blue-400 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal-600 dark:focus-visible:ring-teal-500"
+                className={rowClass}
                 onClick={() => setOpen(false)}
               >
-                <item.icon className="w-4 h-4" />
+                <item.icon className={iconClass} />
                 {item.title}
               </Link>
             </li>
           ))}
-          <hr />
-          <li>
-            <Button
-              variant="ghost"
-              onClick={handleDarkModeToggle}
-              className="flex w-full justify-start gap-2 px-4 py-2 text-sm text-slate-900 dark:text-gray-200 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-blue-600 dark:hover:text-blue-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal-600 dark:focus-visible:ring-teal-500"
-            >
-              {colorScheme === "dark" ? (
-                <Sun className="w-4 h-4" />
-              ) : (
-                <Moon className="w-4 h-4" />
-              )}
-              {colorScheme === "dark" ? "Switch to light" : "Switch to dark"}
-            </Button>
-          </li>
-          <li>
-            <PWAInstallButton />
-          </li>
-          <hr />
+        </ul>
+
+        <Divider />
+
+        {/* Preferences */}
+        <ul className="space-y-0.5 p-2">
           <li>
             <button
-              className="flex items-center gap-2 w-full px-4 py-2 text-sm text-slate-900 dark:text-gray-200 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-red-600 dark:hover:text-red-400 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal-600 dark:focus-visible:ring-teal-500"
+              type="button"
+              onClick={handleDarkModeToggle}
+              className={rowClass}
+            >
+              {colorScheme === "dark" ? (
+                <Sun className={iconClass} />
+              ) : (
+                <Moon className={iconClass} />
+              )}
+              {colorScheme === "dark" ? "Switch to light" : "Switch to dark"}
+            </button>
+          </li>
+        </ul>
+
+        <Divider />
+
+        {/* Sign out */}
+        <ul className="p-2">
+          <li>
+            <button
+              type="button"
+              className={logoutRowClass}
               onClick={handleLogout}
             >
-              <LogOut className="w-4 h-4" />
+              <LogOut className={iconClass} />
               Logout
             </button>
           </li>

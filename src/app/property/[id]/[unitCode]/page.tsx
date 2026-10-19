@@ -81,12 +81,19 @@ export default async function PropertyUnitPage({ params }: PageProps) {
     property.address.postalCode,
   ].filter(Boolean);
 
+  // `formatPrice` returns one string ("৳12,500/month"); splitting on the only
+  // slash lets the period read as the muted suffix the cards show.
+  const [priceAmount, pricePeriod] = formatPrice(unit).split("/");
+
   const headlineSpecs = [
-    { icon: DoorOpen, value: unit.code, label: "Unit" },
     { icon: DoorOpen, value: unit.rooms, label: "Rooms" },
     { icon: BedDouble, value: unit.bedType, label: "Bed" },
     { icon: Bath, value: unit.bathrooms, label: "Bathrooms" },
-    { icon: CookingPot, value: unit.kitchens, label: "Kitchens" },
+    {
+      icon: CookingPot,
+      value: unit.kitchens > 0 ? unit.kitchens : "No Kitchen",
+      label: "Kitchens",
+    },
   ];
 
   const detailRows = [
@@ -96,7 +103,10 @@ export default async function PropertyUnitPage({ params }: PageProps) {
     { label: "Rooms", value: `${unit.rooms}` },
     { label: "Bed arrangement", value: unit.bedType },
     { label: "Bathrooms", value: `${unit.bathrooms}` },
-    { label: "Kitchens", value: `${unit.kitchens}` },
+    {
+      label: "Kitchens",
+      value: unit.kitchens > 0 ? `${unit.kitchens}` : "No Kitchen",
+    },
     { label: "Listed on", value: formatListedOn(property.listedAt) },
     {
       label: "Unit updated",
@@ -107,10 +117,16 @@ export default async function PropertyUnitPage({ params }: PageProps) {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
       <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
-        <nav className="text-sm text-slate-500" aria-label="Breadcrumb">
+        <nav
+          className="text-sm text-slate-500 dark:text-slate-400"
+          aria-label="Breadcrumb"
+        >
           <ol className="flex flex-wrap items-center gap-1.5">
             <li>
-              <Link href="/" className="transition-colors hover:text-slate-900 dark:hover:text-slate-200">
+              <Link
+                href="/"
+                className="transition-colors hover:text-blue-600 dark:hover:text-blue-400"
+              >
                 Home
               </Link>
             </li>
@@ -118,7 +134,10 @@ export default async function PropertyUnitPage({ params }: PageProps) {
               <ChevronRight className="h-3.5 w-3.5" />
             </li>
             <li>
-              <Link href="/property" className="transition-colors hover:text-slate-900 dark:hover:text-slate-200">
+              <Link
+                href="/property"
+                className="transition-colors hover:text-blue-600 dark:hover:text-blue-400"
+              >
                 Property
               </Link>
             </li>
@@ -131,84 +150,91 @@ export default async function PropertyUnitPage({ params }: PageProps) {
           </ol>
         </nav>
 
-        <div className="mt-6 grid gap-6 xl:grid-cols-[1.45fr_0.75fr]">
-          <div className="space-y-6">
-            <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <div className="mt-5 grid gap-5 xl:grid-cols-[1.45fr_0.75fr]">
+          <div className="space-y-4">
+            <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
+                <span className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400">
                   Unit {unit.code}
                 </span>
                 {property.verified && (
-                  <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[10px] font-semibold text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-1 text-[10px] font-semibold text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
                     <Check className="h-3 w-3" />
                     Verified
                   </span>
                 )}
               </div>
 
-              <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
-                  <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-50">
+                  <h1 className="text-xl font-semibold tracking-tight text-slate-900 dark:text-slate-50 sm:text-2xl">
                     {property.name}
                   </h1>
-                  <p className="mt-2 flex items-start gap-1.5 text-sm text-slate-600 dark:text-slate-400">
-                    <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" />
+                  <p className="mt-1.5 flex items-start gap-1.5 text-sm text-slate-600 dark:text-slate-400">
+                    <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-slate-400 dark:text-slate-500" />
                     {visibleAddressParts.join(", ")}
                   </p>
                 </div>
 
-                <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-left sm:text-right dark:border-slate-700 dark:bg-slate-800/80">
+                <div className="rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-left sm:text-right dark:border-slate-700">
                   <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">
                     Rent
                   </p>
-                  <p className="mt-1 text-2xl font-bold text-slate-900 dark:text-slate-50">
-                    {formatPrice(unit)}
+                  <p className="mt-0.5 text-xl font-semibold tracking-tight text-slate-900 dark:text-slate-50">
+                    {priceAmount}
+                    {pricePeriod && (
+                      <span className="text-sm font-normal text-slate-500 dark:text-slate-400">
+                        /{pricePeriod}
+                      </span>
+                    )}
                   </p>
                 </div>
               </div>
             </section>
 
-            <section className="grid grid-cols-2 gap-2 sm:grid-cols-5">
+            <section className="grid grid-cols-2 gap-2 sm:grid-cols-4">
               {headlineSpecs.map((spec) => (
                 <div
                   key={spec.label}
-                  className="rounded-xl border border-slate-200 bg-white p-3 shadow-sm dark:border-slate-800 dark:bg-slate-900"
+                  className="rounded-xl border border-slate-200 bg-white p-2.5 shadow-sm dark:border-slate-800 dark:bg-slate-900"
                 >
-                  <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">
-                    <spec.icon className="h-3.5 w-3.5" />
+                  <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">
+                    <spec.icon className="h-3 w-3 text-slate-400 dark:text-slate-500" />
                     {spec.label}
                   </div>
-                  <p className="mt-2 text-lg font-semibold text-slate-900 dark:text-slate-100">
+                  <p className="mt-1.5 text-base font-semibold tracking-tight text-slate-900 dark:text-slate-100">
                     {spec.value}
                   </p>
                 </div>
               ))}
             </section>
 
-            <section className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
-              <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-                About this property
-              </h2>
-              <p className="mt-3 whitespace-pre-line text-[15px] leading-7 text-slate-600 dark:text-slate-400">
-                {property.description}
-              </p>
-            </section>
+            {property.description && (
+              <section className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
+                <h2 className="text-base font-semibold tracking-tight text-slate-900 dark:text-slate-100">
+                  About this property
+                </h2>
+                <p className="mt-2.5 whitespace-pre-line text-sm leading-6 text-slate-600 dark:text-slate-400">
+                  {property.description}
+                </p>
+              </section>
+            )}
 
-            <section className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
-              <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+            <section className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
+              <h2 className="text-base font-semibold tracking-tight text-slate-900 dark:text-slate-100">
                 In this unit
               </h2>
               {unit.notes && (
-                <p className="mt-3 whitespace-pre-line text-[15px] leading-7 text-slate-600 dark:text-slate-400">
+                <p className="mt-2.5 whitespace-pre-line text-sm leading-6 text-slate-600 dark:text-slate-400">
                   {unit.notes}
                 </p>
               )}
               {unit.amenities.length > 0 && (
-                <div className="mt-4 flex flex-wrap gap-2">
+                <div className="mt-3 flex flex-wrap gap-1.5">
                   {unit.amenities.map((amenity) => (
                     <span
                       key={amenity}
-                      className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-sm text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+                      className="rounded-full border border-slate-200 bg-white px-2.5 py-0.5 text-[13px] text-slate-700 transition-colors hover:border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:border-slate-600"
                     >
                       {amenity}
                     </span>
@@ -216,25 +242,21 @@ export default async function PropertyUnitPage({ params }: PageProps) {
                 </div>
               )}
               {!unit.notes && unit.amenities.length === 0 && (
-                <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">
+                <p className="mt-2.5 text-sm text-slate-500 dark:text-slate-400">
                   No extra notes were left for this unit.
                 </p>
               )}
             </section>
 
-            <section className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
-              <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+            <section className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
+              <h2 className="text-base font-semibold tracking-tight text-slate-900 dark:text-slate-100">
                 Unit details
               </h2>
-              <dl className="mt-4 overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800">
-                {detailRows.map((row, index) => (
+              <dl className="mt-2.5 border-t border-slate-100 dark:border-slate-800">
+                {detailRows.map((row) => (
                   <div
                     key={row.label}
-                    className={`flex items-center justify-between gap-4 px-4 py-3 text-sm ${
-                      index % 2 === 0
-                        ? "bg-white dark:bg-slate-900"
-                        : "bg-slate-50 dark:bg-slate-900/60"
-                    }`}
+                    className="flex items-center justify-between gap-4 border-b border-slate-100 py-2.5 text-sm last:border-b-0 dark:border-slate-800"
                   >
                     <dt className="text-slate-500 dark:text-slate-400">{row.label}</dt>
                     <dd className="text-right font-medium text-slate-900 dark:text-slate-100">
@@ -246,7 +268,7 @@ export default async function PropertyUnitPage({ params }: PageProps) {
             </section>
           </div>
 
-          <aside className="space-y-6 xl:sticky xl:top-20 xl:self-start">
+          <aside className="space-y-4 xl:sticky xl:top-20 xl:self-start">
             <PropertySensitiveInfo
               authenticated={Boolean(user)}
               loginHref={loginHref}
@@ -254,16 +276,16 @@ export default async function PropertyUnitPage({ params }: PageProps) {
             />
 
             {otherUnits.length > 0 && (
-              <div className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
+              <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
                 <h2 className="text-sm font-semibold uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">
                   Other units
                 </h2>
-                <ul className="mt-4 space-y-2">
+                <ul className="mt-2.5 space-y-1.5">
                   {otherUnits.map((other: PropertyUnit) => (
                     <li key={other.code}>
                       <Link
                         href={unitHref(property.id, other.code)}
-                        className="flex items-center justify-between gap-3 rounded-lg border border-slate-200 px-3 py-2 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800"
+                        className="flex items-center justify-between gap-3 rounded-xl border border-slate-200 px-3 py-2 transition-colors hover:border-slate-300 hover:bg-slate-50 dark:border-slate-700 dark:hover:border-slate-600 dark:hover:bg-slate-800"
                       >
                         <span className="text-sm font-medium text-slate-700 dark:text-slate-200">
                           Unit {other.code}
@@ -281,19 +303,19 @@ export default async function PropertyUnitPage({ params }: PageProps) {
         </div>
 
         {related.length > 0 && (
-          <section className="mt-12 border-t border-slate-200 pt-8 dark:border-slate-800">
+          <section className="mt-8 border-t border-slate-200 pt-6 dark:border-slate-800">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+              <h2 className="text-base font-semibold tracking-tight text-slate-900 dark:text-slate-100">
                 Similar units
               </h2>
               <Link
                 href="/property"
-                className="text-sm font-medium text-teal-700 transition-colors hover:text-teal-800 dark:text-teal-400"
+                className="text-sm font-medium text-blue-600 transition-colors hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
               >
                 View all
               </Link>
             </div>
-            <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
               {related.map((card) => (
                 <PropertyCard
                   key={`${card.property.id}-${card.unit.code}`}

@@ -1,19 +1,14 @@
 import { cookies } from "next/headers";
-import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Plus, Building2 } from "lucide-react";
 
 import { getAuthUser } from "@/services/auth/session";
-import { isSystemUser, canEditProperty, canVerifyProperty, canDeleteProperty } from "@/services/auth/permissions";
-import { listPropertiesForUser } from "@/services/property-db";
 import {
-  cheapestUnit,
-  formatPrice,
-  propertyTypeLabels,
-} from "@/services/properties";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { PropertyRowActions } from "./PropertyRowActions";
+  canDeleteProperty,
+  canEditProperty,
+  canVerifyProperty,
+} from "@/services/auth/permissions";
+import { listPropertiesForUser } from "@/services/property-db";
+import { PropertyExplorer } from "./PropertyExplorer";
 
 /**
  * Dashboard property index.
@@ -44,98 +39,27 @@ export default async function AccountPropertyPage() {
   if (!user) redirect("/auth/login");
 
   const properties = await listPropertiesForUser(user);
-  const adminView = isSystemUser(user);
+  const propertyRows = properties.map((property) => ({
+    id: property.id,
+    name: property.name,
+    type: property.type,
+    area: property.address.area,
+    city: property.address.city,
+    region: property.address.region,
+    verified: property.verified,
+    updatedAt: updatedFormatter.format(property.updatedAt),
+    units: property.units.map((unit) => ({
+      code: unit.code,
+      rooms: unit.rooms,
+      bedType: unit.bedType,
+      bathrooms: unit.bathrooms,
+      price: unit.price,
+      period: unit.period,
+    })),
+    canManage: canEditProperty(user, property),
+    canVerify: canVerifyProperty(user),
+    canDelete: canDeleteProperty(user, property),
+  }));
 
-  return (
-    <div className="mx-auto max-w-6xl px-1 py-2 md:px-4">
-      <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className="text-2xl text-slate-900 dark:text-slate-100">
-            My properties
-          </h1>
-        </div>
-        <Button asChild variant={"link"}>
-          <Link href="/account/property/new"> 
-            <Plus /> Add property
-          </Link>
-        </Button>
-      </div>
-
-      {properties.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-slate-300 px-6 py-16 text-center dark:border-slate-700">
-          <Building2 className="mb-3 h-8 w-8 text-slate-400" />
-          <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-            No properties yet
-          </h2> 
-          <Button asChild variant={"outline"} className="mt-4">
-            <Link href="/account/property/new">
-              <Plus className="mr-2 h-4 w-4" />
-              Create a property
-            </Link>
-          </Button>
-        </div>
-      ) : (
-        <ul className="divide-y divide-slate-200 rounded-lg border border-slate-200 dark:divide-slate-800 dark:border-slate-800">
-          {properties.map((property) => {
-            const location = [
-              property.address.area,
-              property.address.city,
-              property.address.region,
-            ]
-              .filter(Boolean)
-              .join(", ");
-            const lowest = cheapestUnit(property.units);
-            return (
-              <li
-                key={property.id}
-                className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between"
-              >
-                <div className="min-w-0">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h2 className="truncate font-semibold text-slate-900 dark:text-slate-100">
-                      {property.name}
-                    </h2>
-                    {property.verified && (
-                      <Badge className="bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-200">
-                        Verified
-                      </Badge>
-                    )}
-                  </div>
-                  <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                    {propertyTypeLabels[property.type]} · {location}
-                  </p>
-                  <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                    <span className="font-medium text-slate-900 dark:text-slate-100">
-                      {property.units.length}{" "}
-                      {property.units.length === 1 ? "unit" : "units"}
-                    </span>
-                    {lowest && (
-                      <>
-                        {" · from "}
-                        <span className="font-medium text-slate-900 dark:text-slate-100">
-                          {formatPrice(lowest)}
-                        </span>
-                      </>
-                    )}
-                    <span className="text-slate-400">
-                      {" · updated "}
-                      {updatedFormatter.format(property.updatedAt)}
-                    </span>
-                  </p>
-                </div>
-                <PropertyRowActions
-                  id={property.id}
-                  firstUnitCode={lowest?.code}
-                  verified={property.verified}
-                  canManage={canEditProperty(user, property)}
-                  canVerify={canVerifyProperty(user)}
-                  canDelete={canDeleteProperty(user, property)}
-                />
-              </li>
-            );
-          })}
-        </ul>
-      )}
-    </div>
-  );
+  return <PropertyExplorer properties={propertyRows} />;
 }

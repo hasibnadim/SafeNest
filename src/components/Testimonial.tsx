@@ -3,7 +3,7 @@
  * In a real app this data would come from a DB or CMS.
  */
 
-import { Quote, ShieldCheck, Star } from "lucide-react";
+import { Star } from "lucide-react";
 
 /**
  * Utility function to merge class names conditionally.
@@ -55,20 +55,20 @@ export function Testimonial({ className }: { className?: string }) {
   return (
     <section
       className={cn(
-        "py-24 px-4 sm:px-6 lg:px-8 border-t border-slate-200 bg-white dark:border-white/5 dark:bg-[#060d16]",
+        "py-8 px-4 sm:px-6 lg:px-8 border-t border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950",
         className,
       )}
     >
       <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           {testimonials.map((t, i) => (
             <div
               key={i}
-              className="group rounded-2xl border border-slate-200 bg-white p-6 dark:border-white/10 dark:bg-slate-900 transition-all duration-300 hover:border-teal-500/30 hover:shadow-lg hover:shadow-slate-200/40"
+              className="group rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900 transition-all duration-300 hover:border-teal-500/30 hover:shadow-lg hover:shadow-slate-200/40"
             >
               <div className="flex items-start gap-3">
-                <Star className="h-5 w-5 text-amber-500 mt-1" />
-                <blockquote className="flex-1 font-serif italic text-lg leading-relaxed text-slate-700 dark:text-slate-300">
+                <Star className="h-4 w-4 text-amber-500 mt-0.5 shrink-0" />
+                <blockquote className="flex-1 text-sm leading-6 text-slate-600 dark:text-slate-300">
                   &ldquo;{t.text}&rdquo;
                 </blockquote>
               </div>

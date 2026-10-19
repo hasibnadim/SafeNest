@@ -16,6 +16,9 @@ export const migrate = async () => {
   const userCollection = db.collection<UserAccount>(CName.User);
   await userCollection.createIndex({ email: 1 }, { unique: true });
   await userCollection.createIndex({ uid: 1 }, { unique: true, sparse: true });
+  // Powers the Customers screen: the sign-up windows are createdAt ranges and
+  // the list itself sorts newest-first.
+  await userCollection.createIndex({ createdAt: -1 });
 
   // CName.Session
   await db.collection<SessionData>(CName.Session).createIndex({ userId: 1 }, { unique: false });

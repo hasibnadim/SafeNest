@@ -128,16 +128,16 @@ export function PropertyFilters({
   const isFiltered = resultCount !== totalCount;
 
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-2 dark:border-slate-800 dark:bg-slate-900">
+    <div className="rounded-2xl border border-slate-200 bg-white p-2 shadow-sm dark:border-slate-800 dark:bg-slate-900">
       <div className="flex flex-col gap-2 lg:flex-row lg:items-center">
-        <div className="relative lg:w-72 lg:shrink-0">
-          <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
+        <div className="relative lg:w-64 lg:shrink-0">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
           <Input
             value={text}
             onChange={(event) => setText(event.target.value)}
             placeholder="Search units, properties, amenities"
             aria-label="Search units and properties"
-            className="h-8 pl-8 text-sm"
+            className="h-8 rounded-full pl-8 pr-3.5 text-xs focus-visible:border-teal-600 focus-visible:ring-teal-600/20"
           />
         </div>
 
@@ -153,7 +153,7 @@ export function PropertyFilters({
             }
           >
             <SelectTrigger
-              className="h-8 w-full text-xs lg:w-36"
+              className="w-full rounded-full px-3 text-xs data-[size=default]:h-8 focus-visible:border-teal-600 focus-visible:ring-teal-600/20 lg:w-36"
               aria-label="Filter by type"
             >
               <SelectValue>{typeFilterLabel(filters.type)}</SelectValue>
@@ -179,7 +179,7 @@ export function PropertyFilters({
             }
           >
             <SelectTrigger
-              className="h-8 w-full text-xs lg:w-36"
+              className="w-full rounded-full px-3 text-xs data-[size=default]:h-8 focus-visible:border-teal-600 focus-visible:ring-teal-600/20 lg:w-36"
               aria-label="Filter by verification"
             >
               <SelectValue>{verifiedFilterLabel(filters.verified)}</SelectValue>
@@ -198,7 +198,7 @@ export function PropertyFilters({
             }
           >
             <SelectTrigger
-              className="h-8 w-full text-xs lg:w-40"
+              className="w-full rounded-full px-3 text-xs data-[size=default]:h-8 focus-visible:border-teal-600 focus-visible:ring-teal-600/20 lg:w-40"
               aria-label="Sort units"
             >
               <SelectValue>{sortFilterLabel(filters.sort)}</SelectValue>
@@ -213,18 +213,7 @@ export function PropertyFilters({
           </Select>
         </div>
 
-        <div className="flex items-center gap-2 lg:shrink-0">
-          <p
-            className="text-[11px] text-slate-500 dark:text-slate-400"
-            aria-live="polite"
-            aria-busy={isPending}
-          >
-            <span className="font-medium text-slate-900 dark:text-slate-100">
-              {resultCount}
-            </span>
-            {resultCount === 1 ? " unit" : " units"}
-            {isFiltered && <span className="text-slate-400"> of {totalCount}</span>}
-          </p>
+        <div className="flex items-center gap-2.5 lg:shrink-0">
           {hasFilters && (
             <button
               type="button"
@@ -232,7 +221,7 @@ export function PropertyFilters({
                 setText("");
                 clearAll();
               }}
-              className="inline-flex items-center gap-0.5 text-[11px] font-medium text-slate-500 transition-colors hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100"
+              className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-medium text-slate-600 transition-colors hover:border-slate-300 hover:text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:border-slate-600 dark:hover:text-slate-100"
             >
               <X className="h-3 w-3" />
               Clear

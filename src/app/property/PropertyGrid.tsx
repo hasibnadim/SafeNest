@@ -26,19 +26,19 @@ export function PropertyGrid({
   if (cards.length === 0) {
     const filtered = hasActiveFilters(filters);
     return (
-      <div className="mt-3 rounded-lg border border-dashed border-slate-300 py-12 text-center dark:border-slate-700">
+      <div className="mt-3 rounded-2xl border border-dashed border-slate-300 bg-white py-10 text-center dark:border-slate-700 dark:bg-slate-900">
         {filtered ? (
           <>
-            <Search className="mx-auto h-5 w-5 text-slate-400" />
-            <p className="mt-2.5 text-sm font-semibold text-slate-900 dark:text-slate-100">
+            <Search className="mx-auto h-5 w-5 text-slate-400 dark:text-slate-500" />
+            <p className="mt-3 text-sm font-semibold text-slate-900 dark:text-slate-100">
               No units match your filters
             </p>
-            <ClearFiltersButton className="mt-3 text-xs font-medium text-teal-700 underline underline-offset-4 hover:text-teal-800 dark:text-teal-400" />
+            <ClearFiltersButton className="mt-3 text-xs font-medium text-blue-600 underline underline-offset-4 transition-colors hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300" />
           </>
         ) : (
           <>
-            <Building2 className="mx-auto h-5 w-5 text-slate-400" />
-            <p className="mt-2.5 text-sm font-semibold text-slate-900 dark:text-slate-100">
+            <Building2 className="mx-auto h-5 w-5 text-slate-400 dark:text-slate-500" />
+            <p className="mt-3 text-sm font-semibold text-slate-900 dark:text-slate-100">
               No units listed yet
             </p>
             <p className="mx-auto mt-1.5 max-w-sm text-xs text-slate-500 dark:text-slate-400">
@@ -49,7 +49,7 @@ export function PropertyGrid({
             {totalCount === 0 && (
               <Link
                 href="/auth/login"
-                className="mt-3 inline-block text-xs font-medium text-teal-700 underline underline-offset-4 hover:text-teal-800 dark:text-teal-400"
+                className="mt-3 inline-block text-xs font-medium text-blue-600 underline underline-offset-4 transition-colors hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
               >
                 Sign in to list a property
               </Link>

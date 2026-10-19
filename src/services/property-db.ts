@@ -372,6 +372,21 @@ export async function listPropertiesForUser(
 }
 
 /**
+ * Everything one account owns, for the admin customer profile.
+ *
+ * Unlike `listPropertiesForUser` this takes a raw uid rather than a session
+ * user, because it deliberately describes somebody else's account. The only
+ * caller is the customers profile page, which has already proved the acting
+ * session is a system user — it is not a substitute for a permission check.
+ */
+export async function listPropertiesForOwner(
+  ownerUid: string,
+): Promise<WithId<PropertyDocument>[]> {
+  if (!ownerUid) return [];
+  return collection().find({ ownerUid }).sort({ updatedAt: -1 }).toArray();
+}
+
+/**
  * Dashboard detail lookup, scoped to what the user is allowed to manage.
  *
  * Returns the plain property rather than the Mongo document so it can cross the

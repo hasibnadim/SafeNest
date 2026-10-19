@@ -8,6 +8,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import Header from "@/components/partials/Header";
 import Footer from "@/components/partials/Footer";
 import { Toaster } from "@/components/ui/sonner";
+import { PwaInstallPrompt } from "@/components/PwaInstallPrompt";
 await migrate();
 
 const geistSans = Geist({
@@ -44,6 +45,7 @@ export default function RootLayout({
             <Footer />
             <Toaster position="bottom-center" />
             <CookieConsent />
+            <PwaInstallPrompt />
           </SerwistProvider>
         </AuthProvider>
       </body>

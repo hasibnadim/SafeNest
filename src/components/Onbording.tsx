@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, type FormEvent } from 'react';
-import { Loader2, Phone } from 'lucide-react';
+import { Loader2, LogOut, Phone } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -38,7 +38,7 @@ function isValidPhoneNumber(value: string) {
 }
 
 export function Onboarding({ phone }: OnboardingProps) {
-    const { updatePhone } = useAuth();
+    const { user, logout, updatePhone } = useAuth();
     const [phoneNumber, setPhoneNumber] = useState('');
     const [error, setError] = useState('');
     const [saving, setSaving] = useState(false);
@@ -77,6 +77,25 @@ export function Onboarding({ phone }: OnboardingProps) {
     return (
         <main className="w-full max-w-md px-4">
             <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xl dark:border-slate-800 dark:bg-slate-950 sm:p-8">
+                <header className="mb-6 flex items-center justify-between gap-4 border-b border-slate-200 pb-5 dark:border-slate-800">
+                    <div className="min-w-0">
+                        <p className="truncate text-sm font-semibold text-slate-900 dark:text-white">
+                            {[user?.firstName, user?.lastName].filter(Boolean).join(' ') || 'Signed in'}
+                        </p>
+                        <p className="truncate text-sm text-slate-600 dark:text-slate-400">
+                            {user?.email}
+                        </p>
+                    </div>
+                    <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => void logout()}
+                        className="shrink-0"
+                    >
+                        <LogOut aria-hidden="true" />
+                        Log out
+                    </Button>
+                </header>
                 <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-full bg-teal-100 text-teal-700 dark:bg-teal-950 dark:text-teal-300">
                     <Phone aria-hidden="true" className="h-6 w-6" />
                 </div>
