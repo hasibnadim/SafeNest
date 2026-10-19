@@ -14,12 +14,14 @@ type PropertySensitiveInfoProps = {
   authenticated: boolean;
   loginHref: string;
   propertyId: string;
+  unitCode?: string;
 };
 
 export function PropertySensitiveInfo({
   authenticated,
   loginHref,
   propertyId,
+  unitCode,
 }: PropertySensitiveInfoProps) {
   const [sensitiveInfo, setSensitiveInfo] = useState<SensitiveInfo | null>(null);
   const [loading, setLoading] = useState(false);
@@ -33,7 +35,7 @@ export function PropertySensitiveInfo({
       const response = await fetch("/api/property/unlock", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ propertyId }),
+        body: JSON.stringify({ propertyId, unitCode, unit: unitCode }),
         cache: "no-store",
       });
       const result = await response.json();

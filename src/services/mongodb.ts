@@ -10,6 +10,7 @@ export enum CName {
   User = "users",
   Session = "sessions",
   Property = "properties",
+  Unlock = "unlocks",
 }
 export const migrate = async () => {
   // CName.User
@@ -36,7 +37,11 @@ export const migrate = async () => {
   // For unit code lookups within a property
   await propertyCollection.createIndex({ "units.code": 1 });
 
- 
+  // CName.Unlock
+  const unlockCollection = db.collection(CName.Unlock);
+  await unlockCollection.createIndex({ user: 1, property: 1, unit: 1 }, { unique: true });
+  await unlockCollection.createIndex({ user: 1, lastUnlockedAt: -1 });
+  await unlockCollection.createIndex({ property: 1 });
 };
 
 export default db;

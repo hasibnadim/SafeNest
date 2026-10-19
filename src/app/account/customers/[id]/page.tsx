@@ -1,12 +1,13 @@
 import { cookies } from "next/headers";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { ArrowLeft, Building2, ChevronRight } from "lucide-react";
+import { ArrowLeft, Building2, ChevronRight, KeyRound } from "lucide-react";
 
 import { getAuthUser } from "@/services/auth/session";
 import { isSystemUser } from "@/services/auth/permissions";
 import { getCustomerProfile } from "@/services/user-db";
 import { listPropertiesForOwner } from "@/services/property-db";
+import { listUnlocksForCustomer } from "@/services/unlock-db";
 import { propertyTypeLabels } from "@/services/properties";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -76,12 +77,16 @@ export default async function CustomerProfilePage({
   const customer = await getCustomerProfile(id);
   if (!customer) notFound();
 
-  const properties = await listPropertiesForOwner(customer.uid);
+  const [properties, unlocks] = await Promise.all([
+    listPropertiesForOwner(customer.uid),
+    listUnlocksForCustomer(customer.uid),
+  ]);
 
   const unitCount = properties.reduce((sum, p) => sum + p.units.length, 0);
   const verifiedCount = properties.filter((p) => p.verified).length;
   const followerCount = customer.followers?.length ?? 0;
   const followingCount = customer.following?.length ?? 0;
+  const totalUnlockCount = unlocks.reduce((sum, u) => sum + u.count, 0);
 
   const displayName =
     [customer.firstName, customer.lastName]
@@ -239,10 +244,93 @@ export default async function CustomerProfilePage({
               <DetailRow label="Seller profile">
                 {customer.sellerId ? "Linked" : "None"}
               </DetailRow>
+              <DetailRow label="Listings unlocked">
+                {totalUnlockCount > 0 ? (
+                  <span>
+                    {totalUnlockCount} ({unlocks.length} {unlocks.length === 1 ? "unit" : "units"})
+                  </span>
+                ) : (
+                  <span className="font-normal text-slate-400">0</span>
+                )}
+              </DetailRow>
             </dl>
           </CardContent>
         </Card>
       </div>
+
+      <Card className="mt-3 gap-3 py-4">
+        <CardHeader className="px-4">
+          <CardTitle className="text-lg">
+            Unlocked Listings
+            <span className="ml-2 text-sm font-normal text-slate-500 dark:text-slate-400">
+              {unlocks.length} {unlocks.length === 1 ? "unit" : "units"} ·{" "}
+              {totalUnlockCount} {totalUnlockCount === 1 ? "unlock" : "unlocks"} total
+            </span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="px-4">
+          {unlocks.length === 0 ? (
+            <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-slate-300 px-6 py-10 text-center dark:border-slate-700">
+              <KeyRound className="mb-3 h-8 w-8 text-slate-400" />
+              <p className="text-sm font-medium text-slate-900 dark:text-slate-100">
+                No unlocks yet
+              </p>
+              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                Contact and address details unlocked by this account will appear here.
+              </p>
+            </div>
+          ) : (
+            <ul className="divide-y divide-slate-100 dark:divide-slate-800">
+              {unlocks.map((unlock) => (
+                <li key={unlock.id}>
+                  <div className="flex flex-col gap-2 py-3 outline-none sm:flex-row sm:items-center sm:justify-between">
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Link
+                          href={unlock.href}
+                          className="truncate font-semibold text-slate-900 transition-colors hover:text-blue-600 dark:text-slate-100 dark:hover:text-blue-400"
+                        >
+                          {unlock.propertyName}
+                        </Link>
+                        {unlock.unit && (
+                          <Badge className="bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                            Unit {unlock.unit}
+                          </Badge>
+                        )}
+                        <Badge className="bg-teal-100 text-teal-800 dark:bg-teal-900/50 dark:text-teal-200">
+                          {unlock.count} {unlock.count === 1 ? "unlock" : "unlocks"}
+                        </Badge>
+                      </div>
+                      <p className="mt-1 truncate text-sm text-slate-500 dark:text-slate-400">
+                        {unlock.propertyType ? propertyTypeLabels[unlock.propertyType] : "Listing"}
+                        {unlock.location ? ` · ${unlock.location}` : ""}
+                      </p>
+                    </div>
+
+                    <div className="flex shrink-0 items-center gap-3">
+                      <div className="text-xs text-slate-500 dark:text-slate-400 sm:text-right">
+                        <p className="font-medium text-slate-700 dark:text-slate-300">
+                          Last unlocked
+                        </p>
+                        <p className="mt-0.5">
+                          {fullFormatter.format(unlock.lastUnlockedAt)}
+                        </p>
+                      </div>
+                      <Link
+                        href={unlock.href}
+                        className="text-slate-400 transition-colors hover:text-slate-600 dark:hover:text-slate-200"
+                        aria-label={`View ${unlock.propertyName}`}
+                      >
+                        <ChevronRight className="h-4 w-4" />
+                      </Link>
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </CardContent>
+      </Card>
 
       <Card className="mt-3 gap-3 py-4">
         <CardHeader className="px-4">

@@ -176,14 +176,14 @@ export default async function PropertyUnitPage({ params }: PageProps) {
                   </p>
                 </div>
 
-                <div className="rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-left sm:text-right dark:border-slate-700">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">
+                <div className="rounded-xl border border-slate-200 px-3.5 py-2 text-left sm:text-right dark:border-slate-700">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.12em]">
                     Rent
                   </p>
-                  <p className="mt-0.5 text-xl font-semibold tracking-tight text-slate-900 dark:text-slate-50">
+                  <p className="mt-0.5 text-xl font-semibold tracking-tight">
                     {priceAmount}
                     {pricePeriod && (
-                      <span className="text-sm font-normal text-slate-500 dark:text-slate-400">
+                      <span className="text-sm font-normal">
                         /{pricePeriod}
                       </span>
                     )}
@@ -273,6 +273,7 @@ export default async function PropertyUnitPage({ params }: PageProps) {
               authenticated={Boolean(user)}
               loginHref={loginHref}
               propertyId={id}
+              unitCode={unit.code}
             />
 
             {otherUnits.length > 0 && (
