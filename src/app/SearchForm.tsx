@@ -1,6 +1,6 @@
 "use client";
 
-import { Search } from "lucide-react";
+import { Loader2, Search } from "lucide-react";
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
@@ -105,11 +105,21 @@ export default function SearchForm() {
 
             <button
                 type="submit"
-                aria-label="Search properties"
+                aria-label={isPending ? "Searching properties" : "Search properties"}
+                disabled={isPending}
                 className="mr-1.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-600 text-white transition-colors outline-none hover:bg-blue-700 focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 sm:mr-2 sm:h-10 sm:w-10 dark:bg-blue-600 dark:hover:bg-blue-500 dark:focus-visible:ring-offset-slate-800"
             >
-                <Search className="h-4 w-4" />
+                {isPending ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                    <Search className="h-4 w-4" />
+                )}
             </button>
+            {isPending && (
+                <span role="status" className="sr-only">
+                    Searching properties…
+                </span>
+            )}
         </form>
     );
 }

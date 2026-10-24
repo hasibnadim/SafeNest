@@ -253,7 +253,8 @@ const numberFormatter = new Intl.NumberFormat("en-US", {
 });
 
 /**
- * Formats a rent for display, e.g. "৳12,500/month".
+ * Formats a rent for display, e.g. "৳12,500/month". The sentinel values 1 and
+ * 0 represent negotiable and unavailable rent, respectively.
  *
  * `Intl` renders BDT as the literal code "BDT" in the en-US locale, so the taka
  * sign is added here. The locale and pattern are pinned so server and client
@@ -262,6 +263,9 @@ const numberFormatter = new Intl.NumberFormat("en-US", {
 export function formatPrice(
   unit: Pick<PropertyUnit, "price" | "period">,
 ): string {
+  if (unit.price === 1) return "Negotiable";
+  if (unit.price === 0) return "Unavailable";
+
   return `${CURRENCY_SYMBOL}${numberFormatter.format(unit.price)}/${unit.period}`;
 }
 
